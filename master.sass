@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css?family=Cairo:300,600')
+
+$theme: #8ea5a4
+$light: #d8dede
+$dark: #647574
+
+body
+  padding: 0
+  margin: 0
+  width: 280px
+  max-height: 400px
+  background-color: #ffffff
+  color: $dark
+  font-family: Cairo, Ubuntu, Arial, sans-serif
+
+img
+  width: 24px
+
+.content
+  padding: 10px
+
+.block
+  display: flex
+  width: inherit
+  height: 45px
+  overflow: hidden
+  padding: 8px
+  align-items: center
+  justify-content: space-between
+  cursor: pointer
+  font-size: 180%
+
+  &:hover
+    background-color: lighten($light, 5)
+
+  .active
+    font-weight: 600
+
+.group
+  display: flex
+  width: 100%
+
+  .name
+    text-align: center
+    flex: 7
+
+  .delete
+    flex: 1
+    text-align: center
+
+    img
+      margin: -5px
+      transition: all .2s ease-in-out
+
+      &:hover
+        transform: scale(1.5)
+
+.new
+  padding: 5px
+  outline: none
+  border: 0px
+  background-color: $light
+  font-family: Cairo, Ubuntu, Arial, sans-serif

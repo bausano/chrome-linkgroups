@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "Linkgroups",
+  "description": "A Chrome extension helping you manage your Google Chrome tabs.",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "img/icon.png",
+    "default_popup": "droplist.html"
+  },
+  "permissions": [
+    "storage",
+    "tabs"
+  ]
+}
