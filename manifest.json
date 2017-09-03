@@ -3,13 +3,24 @@
   "name": "Linkgroups",
   "description": "A Chrome extension helping you manage your Google Chrome tabs.",
   "version": "1.0",
+  "offline_enabled": true,
+  "icons": {
+    "512": "img/icon.png"
+  },
 
   "browser_action": {
     "default_icon": "img/icon.png",
     "default_popup": "droplist.html"
   },
+
   "permissions": [
     "storage",
-    "tabs"
-  ]
+    "tabs",
+    "bookmarks"
+  ],
+
+  "background": {
+    "scripts": ["js/helpers.js", "js/background.js"],
+    "persistent": false
+  }
 }

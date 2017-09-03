@@ -1,0 +1,24 @@
+@import url("https://fonts.googleapis.com/css?family=Cairo:300,600");
+body { padding: 0; margin: 0; width: 280px; max-height: 400px; background-color: #ffffff; color: #647574; font-family: Cairo, Ubuntu, Arial, sans-serif; }
+
+img { width: 24px; }
+
+.content { padding: 10px; }
+
+.block { display: flex; width: inherit; height: 45px; overflow: hidden; padding: 8px; align-items: center; justify-content: space-between; cursor: pointer; font-size: 180%; }
+
+.block:hover { background-color: #e6eaea; }
+
+.block .active { font-weight: 600; }
+
+.group { display: flex; width: 100%; }
+
+.group .name { text-align: center; flex: 7; }
+
+.group .delete { flex: 1; text-align: center; }
+
+.group .delete img { margin: -5px; transition: all .2s ease-in-out; }
+
+.group .delete img:hover { transform: scale(1.5); }
+
+.new { padding: 5px; outline: none; border: 0px; background-color: #d8dede; font-family: Cairo, Ubuntu, Arial, sans-serif; }

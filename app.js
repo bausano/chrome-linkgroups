@@ -14,7 +14,7 @@ app.controller('GroupController', function GroupController($scope) {
   $scope.delete = (id) => {
     $scope.groups.splice(id, 1)
 
-    $scope.save()
+    save($scope.groups)
   }
 
   $scope.add = () => {
@@ -22,17 +22,37 @@ app.controller('GroupController', function GroupController($scope) {
       return false
     }
 
+    if ($scope.groups.length === 0) {
+      return $scope.init()
+    }
+
+    $scope.groups.push({
+      active: 0,
+      name: $scope.new,
+      tabs: [{}]
+    })
+
+    $scope.new = ''
+
+    save($scope.groups)
+  }
+
+  $scope.init = () => {
     $scope.getCurrentTabs().then((tabs) => {
       $scope.groups.push({
-        active: 0,
+        active: 1,
         name: $scope.new,
         tabs: tabs
       })
 
-      $scope.swap($scope.groups.length - 1)
-
       $scope.new = ''
+
+      $scope.$apply()
+
+      save($scope.groups)
     })
+
+    return true
   }
 
   $scope.swap = (id) => {
@@ -40,25 +60,26 @@ app.controller('GroupController', function GroupController($scope) {
       return false
     }
 
-    let current = $scope.current()
-
+    let current = getKeyWhere({active: 1}, $scope.groups)
 
     $scope.groups[current].active = 0
     $scope.groups[id].active = 1
 
-    console.log($scope.groups)
+    save($scope.groups)
 
-    $scope.save()
+    $scope.closeTabs(current)
 
     $scope.openTabs(id)
-
-    // TODO: Close tabs.
   }
 
   $scope.openTabs = (id) => {
     for (let key in $scope.groups[id].tabs) {
-      chrome.tabs.create($scope.groups[id].tabs[key])
+      chrome.tabs.create(parseTabInfo($scope.groups[id].tabs[key]), (tab) => {
+        $scope.groups[id].tabs[key].id = tab.id
+      })
     }
+
+    save($scope.groups)
   }
 
   $scope.closeTabs = (id) => {
@@ -72,17 +93,13 @@ app.controller('GroupController', function GroupController($scope) {
   $scope.getCurrentTabs = () => {
     let promise = new Promise((resolve, reject) => {
       var current = []
-
       chrome.tabs.getAllInWindow(null, (tabs) => {
+        var length = tabs.length
         for (var i = 0; i < tabs.length; i++) {
           chrome.tabs.get(tabs[i].id, (tab) => {
-            current.push({
-              url: tab.url,
-              index: tab.index,
-              active: tab.active,
-              pinned: tab.pinned,
-            })
-            if (i === tabs.length) {
+            current.push(parseTabInfo(tab, true))
+
+            if (--length === 0) {
               resolve(current)
             }
           })
@@ -91,19 +108,5 @@ app.controller('GroupController', function GroupController($scope) {
     })
 
     return promise
-  }
-
-  $scope.current = () => {
-    for (let key in $scope.groups) {
-      if ($scope.groups[key].active === 1) {
-        return key
-      }
-    }
-
-    return 0
-  }
-
-  $scope.save = () => {
-    chrome.storage.sync.set({'groups': JSON.stringify($scope.groups)})
   }
 })
