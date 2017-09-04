@@ -9,7 +9,7 @@
     <div class="content" ng-controller="GroupController">
       <div class="groups">
         <div ng-repeat="group in groups track by $index" class="block"
-          title="{{ group.children.length }} links">
+          title="{{ group.count }} links">
           <div class="group {{ group.id === active ? 'active' : '' }}">
             <div class="name" ng-click="swap(group.id)">{{ group.title }}</div>
             <div class="delete">

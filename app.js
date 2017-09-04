@@ -48,6 +48,8 @@ app.controller('GroupController', function GroupController($scope) {
         group.children.forEach((tab) => {
           tabs[tab.id] = tab
         })
+
+        group.count = group.children.length
         group.children = tabs
         $scope.groups[group.id] = group
       })
@@ -57,6 +59,7 @@ app.controller('GroupController', function GroupController($scope) {
         $scope.setActive($scope.groups[ids[0]].id)
       }
 
+      console.log(Object.keys($scope.groups[615].children).length)
       $scope.$apply()
     })
   }
