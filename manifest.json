@@ -4,6 +4,7 @@
   "description": "A Chrome extension helping you manage your Google Chrome tabs.",
   "version": "1.0",
   "offline_enabled": true,
+  "homepage_url": "https://github.com/bausano/chrome-linkgroups",
   "icons": {
     "512": "img/icon.png"
   },
@@ -16,6 +17,11 @@
   "permissions": [
     "tabs",
     "bookmarks",
-    "storage"
-  ]
+    "storage",
+    "contextMenus"
+  ],
+
+  "background": {
+    "scripts": ["js/menu.js"]
+  }
 }
