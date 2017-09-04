@@ -1,112 +1,173 @@
+const Bookmarks = chrome.bookmarks
+const Storage = chrome.storage
+const Tabs = chrome.tabs
+
 var app = angular.module('app', [])
 
 app.controller('GroupController', function GroupController($scope) {
-  $scope.groups = []
+  $scope.groups = {}
   $scope.new = ''
-
-  chrome.storage.sync.get('groups', (result) => {
-    if (!(result.groups === undefined || result.groups.length === 0)) {
-      $scope.groups = JSON.parse(result.groups)
-      $scope.$apply()
-    }
-  })
-
-  $scope.delete = (id) => {
-    $scope.groups.splice(id, 1)
-
-    save($scope.groups)
-  }
-
-  $scope.add = () => {
-    if ($scope.new.trim() === '') {
-      return false
-    }
-
-    if ($scope.groups.length === 0) {
-      return $scope.init()
-    }
-
-    $scope.groups.push({
-      active: 0,
-      name: $scope.new,
-      tabs: [{}]
-    })
-
-    $scope.new = ''
-
-    save($scope.groups)
-  }
+  $scope.active = false
 
   $scope.init = () => {
-    $scope.getCurrentTabs().then((tabs) => {
-      $scope.groups.push({
-        active: 1,
-        name: $scope.new,
-        tabs: tabs
-      })
-
-      $scope.new = ''
-
-      $scope.$apply()
-
-      save($scope.groups)
-    })
-
-    return true
-  }
-
-  $scope.swap = (id) => {
-    if ($scope.groups[id].active === 1) {
-      return false
-    }
-
-    let current = getKeyWhere({active: 1}, $scope.groups)
-
-    $scope.groups[current].active = 0
-    $scope.groups[id].active = 1
-
-    save($scope.groups)
-
-    $scope.closeTabs(current)
-
-    $scope.openTabs(id)
-  }
-
-  $scope.openTabs = (id) => {
-    for (let key in $scope.groups[id].tabs) {
-      chrome.tabs.create(parseTabInfo($scope.groups[id].tabs[key]), (tab) => {
-        $scope.groups[id].tabs[key].id = tab.id
-      })
-    }
-
-    save($scope.groups)
-  }
-
-  $scope.closeTabs = (id) => {
-    chrome.tabs.getAllInWindow(null, (tabs) => {
-      for (var i = 0; i < tabs.length; i++) {
-        chrome.tabs.remove(tabs[i].id)
-      }
-    })
-  }
-
-  $scope.getCurrentTabs = () => {
-    let promise = new Promise((resolve, reject) => {
-      var current = []
-      chrome.tabs.getAllInWindow(null, (tabs) => {
-        var length = tabs.length
-        for (var i = 0; i < tabs.length; i++) {
-          chrome.tabs.get(tabs[i].id, (tab) => {
-            current.push(parseTabInfo(tab, true))
-
-            if (--length === 0) {
-              resolve(current)
-            }
-          })
+    var promise = new Promise((resolve, reject) => {
+      Bookmarks.search({title: 'Linkgroups-extension'}, (root) => {
+        if (root.length === 0) {
+          Bookmarks.create({title: 'Linkgroups-extension'},
+            (new_root) => {
+              $scope.setActive(false)
+              resolve(new_root)
+            })
+        } else {
+          resolve(root[0])
         }
       })
     })
 
-    return promise
+    promise.then((root) => {
+      $scope.root = root
+      Storage.sync.get('active', (result) => {
+        var active = result.active
+        if (!(active === undefined || active.length === 0)) {
+          $scope.setActive(active)
+        }
+
+        $scope.reloadGroups()
+      })
+    })
+  }
+
+  $scope.init()
+
+  $scope.reloadGroups = () => {
+    $scope.groups = {}
+    Bookmarks.getSubTree($scope.root.id, (tree) => {
+      tree = tree[0].children
+      tree.forEach((group) => {
+        var tabs = {}
+        group.children.forEach((tab) => {
+          tabs[tab.id] = tab
+        })
+        group.children = tabs
+        $scope.groups[group.id] = group
+      })
+
+      let ids = Object.keys($scope.groups)
+      if (!$scope.active && ids.length > 0) {
+        $scope.setActive($scope.groups[ids[0]].id)
+      }
+
+      $scope.$apply()
+    })
+  }
+
+  $scope.setActive = (id) => {
+    $scope.active = id
+
+    Storage.sync.set({'active': id}, () => {$scope.$apply()})
+  }
+
+  $scope.add = () => {
+    if ($scope.new === '') {
+      return false
+    }
+
+    Bookmarks.create({
+      title: $scope.new,
+      parentId: $scope.root.id
+    }, () => {
+      $scope.new = ''
+      $scope.reloadGroups()
+    })
+  }
+
+  $scope.delete = (id) => {
+    Bookmarks.removeTree($scope.groups[id].id, () => {
+      $scope.reloadGroups()
+    })
+  }
+
+  $scope.swap = (id) => {
+    var group = $scope.groups[id]
+    $scope.saveTabs($scope.active).then((tabs) => {
+      $scope.openTabs(group.id)
+
+      $scope.closeTabs(tabs)
+
+      $scope.setActive(group.id)
+
+      $scope.reloadGroups()
+    })
+  }
+
+  $scope.saveTabs = (id) => {
+    return new Promise((fine) => {
+      $scope.clearGroup(id).then(() => {
+        $scope.getCurrentTabs().then((tabs) => {
+          fine(tabs)
+          for (var key in tabs) {
+            Bookmarks.create({
+              parentId: id,
+              title: tabs[key].title,
+              index: tabs[key].index,
+              url: tabs[key].url
+            })
+          }
+        })
+      })
+    })
+  }
+
+  $scope.clearGroup = (id) => {
+    return new Promise((resolve, reject) => {
+      var tabs = $scope.groups[id].children,
+          length = Object.keys(tabs).length
+
+      if (length === 0) {
+        resolve()
+      }
+
+      for (var key in tabs) {
+        Bookmarks.remove(tabs[key].id, () => {
+          if (--length === 0) {
+            resolve()
+          }
+        })
+      }
+    })
+  }
+
+  $scope.openTabs = (id) => {
+    var tabs = $scope.groups[id].children
+    if (Object.keys(tabs).length === 0) {
+      Tabs.create({})
+      return false
+    }
+
+    for (var key in tabs) {
+      Tabs.create({
+        url: tabs[key].url,
+        index: tabs[key].index
+      })
+    }
+  }
+
+  $scope.closeTabs = (tabs) => {
+    for (var key in tabs) {
+      Tabs.remove(tabs[key].id)
+    }
+  }
+
+  $scope.getCurrentTabs = () => {
+    return new Promise((resolve, reject) => {
+      var current = []
+      Tabs.getAllInWindow(null, (tabs) => {
+        var formatted = {}
+        tabs.forEach((tab) => {
+          formatted[tab.id] = tab
+        })
+        resolve(formatted)
+      })
+    })
   }
 })

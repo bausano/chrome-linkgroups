@@ -14,13 +14,8 @@
   },
 
   "permissions": [
-    "storage",
     "tabs",
-    "bookmarks"
-  ],
-
-  "background": {
-    "scripts": ["js/helpers.js", "js/background.js"],
-    "persistent": false
-  }
+    "bookmarks",
+    "storage"
+  ]
 }

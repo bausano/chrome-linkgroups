@@ -3,18 +3,18 @@
   <head>
     <title>Linkgroups</title>
     <link rel="stylesheet" href="css/master.min.css">
-    <script src="js/angular.js"></script>
+    <script src="angular.js"></script>
   </head>
   <body ng-app="app">
     <div class="content" ng-controller="GroupController">
       <div class="groups">
         <div ng-repeat="group in groups track by $index" class="block"
-          title="{{ group.tabs.length }} links">
-          <div class="group {{ group.active === 1 ? 'active' : '' }}">
-            <div class="name" ng-click="swap($index)">{{ group.name }}</div>
+          title="{{ group.children.length }} links">
+          <div class="group {{ group.id === active ? 'active' : '' }}">
+            <div class="name" ng-click="swap(group.id)">{{ group.title }}</div>
             <div class="delete">
               <img src="img/delete.png" alt="delete"
-                ng-click="delete($index)" ng-if="group.active === 0">
+                ng-click="delete(group.id)" ng-if="group.id !== active">
             </div>
           </div>
         </div>
@@ -35,6 +35,5 @@
     </div>
   </body>
 
-  <script src="js/helpers.js"></script>
   <script src="app.js"></script>
 </html>
