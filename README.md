@@ -9,8 +9,6 @@ However they're either needlessly complex or they lack customizability.
 That's why I created this extension as I can easily add new features myself whenever I need.
 
 Todo
-- Add tests
-- Code revision
 - Export (#4)
 - Show all links (#2)
 - Save tabs when user creates his first group (#1)

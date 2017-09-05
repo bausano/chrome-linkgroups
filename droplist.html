@@ -4,6 +4,8 @@
     <title>Linkgroups</title>
     <link rel="stylesheet" href="css/master.min.css">
     <script src="js/angular.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery-ui.js"></script>
     <script src="js/swap.js"></script>
     <script src="app.js"></script>
   </head>
@@ -11,22 +13,21 @@
     <div class="content" ng-controller="GroupController">
       <div class="groups">
         <div ng-repeat="group in groups track by $index" class="block"
-          title="{{ group.count }} links">
+          title="{{ group.count }} links" id="block_{{group.id}}">
           <div class="group {{ group.id === active ? 'active' : '' }}">
             <div class="name" ng-click="swap(group.id)">{{ group.title }}</div>
-            <div class="delete">
-              <img src="img/delete.png" alt="delete"
-                ng-click="delete(group.id)" ng-if="group.id !== active">
+            <div class="delete"
+                ng-mousedown="tryToDelete(group.id)"
+                ng-mouseup="stopDeletion(group.id)"
+                ng-mouseleave="stopDeletion(group.id)"
+                ng-if="group.id !== active">
             </div>
           </div>
         </div>
       </div>
       <div class="block">
         <div class="group">
-          <div class="delete">
-            <img src="img/plus.png" alt="plus" class="delete"
-              ng-click="add()">
-          </div>
+          <div class="add" ng-click="add()"></div>
           <div class="name">
             <form ng-submit="add()">
               <input type="text" class="new" ng-model="new">

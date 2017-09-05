@@ -132,4 +132,33 @@ app.controller('GroupController', function GroupController($scope) {
       $scope.reloadGroups()
     })
   }
+
+  /*
+   * Delete animation
+   */
+  $scope.animate = false
+
+  $scope.tryToDelete = (id) => {
+    $scope.animate = true
+    $('#block_' + id).stop(true, true).css({
+      backgroundColor: '#ffeceb',
+    }).animate({
+      backgroundColor: '#ff6961',
+      color: '#fff'
+    }, 750, () => {
+      if ($scope.animate) {
+        $scope.delete(id)
+      }
+    })
+  }
+
+  $scope.stopDeletion = (id) => {
+    if ($scope.animate) {
+      $scope.animate = false
+      $('#block_' + id).stop(true, true).css({
+        backgroundColor: 'rgba(0, 0, 0, 0)',
+        color: '#647574'
+      })
+    }
+  }
 })
