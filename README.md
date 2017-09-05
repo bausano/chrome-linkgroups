@@ -12,4 +12,3 @@ Todo
 - Export (#4)
 - Show all links (#2)
 - Save tabs when user creates his first group (#1)
-- Confirmation window popup when user deletes a group (#3)

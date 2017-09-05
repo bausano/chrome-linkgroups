@@ -134,7 +134,7 @@ app.controller('GroupController', function GroupController($scope) {
   }
 
   /*
-   * Delete animation
+   * Delete animation.
    */
   $scope.animate = false
 

@@ -31,8 +31,9 @@ function reloadMenu()
   })
 }
 
+// If the tree was changed in the popup window, context menu gets reloaded.
 chrome.extension.onMessage.addListener((request) => {
-  if( request.menu === "update" ) {
+  if (request.menu === "update") {
     reloadMenu()
   }
 })
