@@ -6,7 +6,8 @@
   "offline_enabled": true,
   "homepage_url": "https://github.com/bausano/chrome-linkgroups",
   "icons": {
-    "512": "img/icon.png"
+    "512": "img/icon.png",
+    "128": "img/icon-128.png"
   },
 
   "browser_action": {
